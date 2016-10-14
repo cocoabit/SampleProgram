@@ -3,7 +3,7 @@
 void CocoaBit_lib::pwmWrite(int pin, int value)
 {
 	analogWriteFreq(4000);
-	analogWriteRange(99);
-	analogWrite(pin, value);
+
+	analogWrite(pin, value*10);
 }
 CocoaBit_lib CocoaBit;
