@@ -1,5 +1,6 @@
 #ifndef COCOABIT_h
 #define COCOABIT_h
+#include<Arduino.h>
 class CocoaBit_lib
 {
 public:
