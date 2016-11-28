@@ -11,7 +11,7 @@
 #include <Nefry.h>
 #include<NefryWriteMode.h>
 
-#define USE_SERIAL Serial1
+#define USE_SERIAL Nefry
 
 int OUTPUT_PORT = D3;
 
@@ -30,30 +30,32 @@ WebSocketsClient webSocket;
 // const char* ip = Nefry.getConfStr(0);
 // const int port = Nefry.getConfValue(1);
 
-const char* ip = "192.168.225.42";
-const int port = 5000;
+//const char* ip = "192.168.225.42";
+//const int port = 5000;
+int port;
+String ip;
 int sensorValue;
 
 void webSocketEvent(WStype_t type, uint8_t * payload, size_t lenght) {
   
     switch(type) {
         case WStype_DISCONNECTED:
-              USE_SERIAL.printf("[WSc] Disconnected!\n");
+              USE_SERIAL.println("[WSc] Disconnected!");
             break;
         case WStype_CONNECTED:
-              USE_SERIAL.printf("[WSc] Connected to url: %s\n",  payload);
+              USE_SERIAL.println("[WSc] Connected to url: "+(String)*payload);
               // send message to server when Connected
               webSocket.sendTXT("Connected");
             break;
         case WStype_TEXT:
-              USE_SERIAL.printf("[WSc] get text: %s\n", payload);
+              USE_SERIAL.println("[WSc] get text: "+ (String)*payload);
               // send message to server
-              webSocket.sendTXT("message here!!!!!!! IP:" + String(ip) + " PORT:" + String(port));
+              webSocket.sendTXT("message here!!!!!!! IP:" + ip + " PORT:" + String(port));
               // webSocket.sendTXT(Nefry.getConfStr(0));
               // webSocket.sendTXT(Nefry.getConfStr(1));
             break;
         case WStype_BIN:
-              USE_SERIAL.printf("[WSc] get binary lenght: %u\n", lenght);
+              USE_SERIAL.println("[WSc] get binary lenght:"+lenght);
               hexdump(payload, lenght);
               // send data to server
               // webSocket.sendBIN(payload, lenght);
@@ -63,17 +65,17 @@ void webSocketEvent(WStype_t type, uint8_t * payload, size_t lenght) {
 }
 
 void setup() {
-    
-    USE_SERIAL.begin(115200);
-    USE_SERIAL.setDebugOutput(true);
-    
     pinMode(OUTPUT_PORT, OUTPUT);
     for(uint8_t t = 4; t > 0; t--) {
-        USE_SERIAL.printf("[SETUP] BOOT WAIT %d...\n", t);
-        USE_SERIAL.flush();
+        USE_SERIAL.println("[SETUP] BOOT WAIT :"+t);
         delay(1000);
     }
-    webSocket.begin(ip, port);
+    //webSocket.begin(ip, port);
+    Nefry.setConfHtml("IPAddress",0);
+    Nefry.setConfHtml("Port",10);
+    port=Nefry.getConfValue(0);
+    ip=Nefry.getConfStr(0);
+    webSocket.begin(ip.c_str (), port);
     webSocket.onEvent(webSocketEvent);
 }
 
