@@ -69,7 +69,8 @@ void setup() {
     Nefry.setConfHtml("IPAddress",0);
     Nefry.setConfHtml("Port",1);
     ip=Nefry.getConfStr(0);
-    port=Nefry.getConfValue(1);
+    // port=Nefry.getConfValue(1);
+    port=5000;
     webSocket.begin(ip.c_str (), port);
     webSocket.onEvent(webSocketEvent);
 }
@@ -78,8 +79,6 @@ void loop() {
     consoleText = "{'message':'message send!','ip':'" + ip + "','port':" + String(port) + ",'module_name':'" + Nefry.getModuleName() + "','sensorValue':" + String(sensorValue) + "}";
     
     sensorValue = analogRead(A0);//アナログの入力を読みます。
-    Nefry.println(ip.c_str ());
-    Nefry.println(String(port));
     Nefry.print("input sensor = " );
     Nefry.println(sensorValue);//センサーデータを表示します。
     Nefry.print("consoleText = ");
