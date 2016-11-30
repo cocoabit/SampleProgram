@@ -1,7 +1,8 @@
 /*
- * WebSocketClient.ino
- *
- *  Created on: 24.05.2015
+ * CocoaBitWebSocketSimple.ino
+ * 
+ *  参考：
+ *  https://github.com/Links2004/arduinoWebSockets/blob/master/examples/WebSocketClient/WebSocketClient.ino
  *
  */
 
@@ -25,37 +26,32 @@ void WriteModeloop() {
 }
 NefryWriteMode WriteMode(WriteModeSetup, WriteModeloop);
 
+// Main ----------------------------------------------
 WebSocketsClient webSocket;
 
-// const char* ip = Nefry.getConfStr(0);
-// const int port = Nefry.getConfValue(1);
-
-//const char* ip = "192.168.225.42";
-//const int port = 5000;
 int port;
 String ip;
+String consoleText;
 int sensorValue;
 
 void webSocketEvent(WStype_t type, uint8_t * payload, size_t lenght) {
   
     switch(type) {
         case WStype_DISCONNECTED:
-              USE_SERIAL.println("[WSc] Disconnected!");
+              Nefry.println("[WSc] Disconnected!");
             break;
         case WStype_CONNECTED:
-              USE_SERIAL.println("[WSc] Connected to url: "+(String)*payload);
+              Nefry.println("[WSc] Connected to url: "+(String)*payload);
               // send message to server when Connected
               webSocket.sendTXT("Connected");
             break;
         case WStype_TEXT:
-              USE_SERIAL.println("[WSc] get text: "+ (String)*payload);
+              Nefry.println("[WSc] get text: "+ (String)*payload);
               // send message to server
-              webSocket.sendTXT("message here!!!!!!! IP:" + ip + " PORT:" + String(port));
-              // webSocket.sendTXT(Nefry.getConfStr(0));
-              // webSocket.sendTXT(Nefry.getConfStr(1));
+              //
             break;
         case WStype_BIN:
-              USE_SERIAL.println("[WSc] get binary lenght:"+lenght);
+              Nefry.println("[WSc] get binary lenght:"+lenght);
               hexdump(payload, lenght);
               // send data to server
               // webSocket.sendBIN(payload, lenght);
@@ -67,27 +63,31 @@ void webSocketEvent(WStype_t type, uint8_t * payload, size_t lenght) {
 void setup() {
     pinMode(OUTPUT_PORT, OUTPUT);
     for(uint8_t t = 4; t > 0; t--) {
-        USE_SERIAL.println("[SETUP] BOOT WAIT :"+t);
+        Nefry.println("[SETUP] BOOT WAIT :"+t);
         delay(1000);
     }
-    //webSocket.begin(ip, port);
     Nefry.setConfHtml("IPAddress",0);
-    Nefry.setConfHtml("Port",10);
-    port=Nefry.getConfValue(0);
+    Nefry.setConfHtml("Port",1);
     ip=Nefry.getConfStr(0);
+    port=Nefry.getConfValue(1);
     webSocket.begin(ip.c_str (), port);
     webSocket.onEvent(webSocketEvent);
 }
 
 void loop() {
-    webSocket.loop();
-    // sensorValue = analogRead(A0);//アナログの入力を読みます。
-    // Nefry.print("input sensor = " );
-    /*
+    consoleText = "{'message':'message send!','ip':'" + ip + "','port':" + String(port) + ",'module_name':'" + Nefry.getModuleName() + "','sensorValue':" + String(sensorValue) + "}";
+    
     sensorValue = analogRead(A0);//アナログの入力を読みます。
+    Nefry.println(ip.c_str ());
+    Nefry.println(String(port));
     Nefry.print("input sensor = " );
     Nefry.println(sensorValue);//センサーデータを表示します。
+    Nefry.print("consoleText = ");
+    Nefry.println(consoleText);
+    
+    webSocket.sendTXT(consoleText);
+    
     Nefry.ndelay(1000);
-    */
-    Nefry.ndelay(500);
+
+    webSocket.loop();
 }
