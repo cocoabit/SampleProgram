@@ -32,7 +32,8 @@ WebSocketsClient webSocket;
 int port;
 String ip;
 String consoleText;
-int sensorValue;
+int sensorValue = 0;
+int sensorValuePrevious = 500;
 
 void webSocketEvent(WStype_t type, uint8_t * payload, size_t lenght) {
   
@@ -82,10 +83,17 @@ void loop() {
     
     Nefry.print("sensorValue = " );
     Nefry.println(sensorValue);//センサーデータを表示します。
-    Nefry.print("consoleText = ");
-    Nefry.println(consoleText);
-    
-    webSocket.sendTXT(consoleText);
+
+    int spanValue = abs( sensorValuePrevious - sensorValue );
+
+    // 値に大きく変化があったら
+    if( spanValue > 100 ){
+      Nefry.print("consoleText = ");
+      Nefry.println(consoleText);
+      webSocket.sendTXT(consoleText);
+    }
+
+    sensorValuePrevious = sensorValue;
     
     Nefry.ndelay(1000);
 
